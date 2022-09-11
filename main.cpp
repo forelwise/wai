@@ -4,6 +4,7 @@
 #ifndef _UNICODE
 #define _UNICODE  
 #endif
+
 #include <iostream>
 #include <windows.h>
 #include "wai/wai.h"
@@ -17,11 +18,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     wai test(hInstance, lpClassName, WndProc);
     if(!test.isRegistered)
         return 3;
+    CWindow* window_test = test.create<CWindow>(L"From wai", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 300, 300, 250, 250);
 
-    HWND hWnd = CreateWindow(lpClassName, L"TEST", WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-        0, 0, 200, 200, NULL, NULL, hInstance, NULL);
-    if(!hWnd)
-        return 2;
     MSG msg = {0};
     int iGetOk = 0;
     while((iGetOk = GetMessage(&msg, NULL, 0, 0)) != 0){
@@ -29,18 +27,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
-
-    /*
-
-        CWindow window1 = app.newWindow(params);
-        window1.show();
-
-        CButton c = window1.new<CButton>(paraams);
-        c.text(...);
-        c.position...
-        
-
-    */
     return msg.wParam;       
 }
 

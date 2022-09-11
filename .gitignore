@@ -3,6 +3,7 @@
 
 .vscode/
 test/
+Doxyfile
 
 # Compiled Object files
 *.slo
