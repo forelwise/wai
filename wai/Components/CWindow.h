@@ -5,6 +5,8 @@
 class CWindow : public CObject{
     public:
         CWindow(LPCTSTR, LPCTSTR, DWORD, int, int, int, int, HINSTANCE, HWND);
+
+        void(*onClose)(void);
 };
 /**
  * @brief Конструктор нового обьекта CWindow::CWindow 

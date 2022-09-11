@@ -8,7 +8,7 @@
 #endif
 
 #include <windows.h>
-#include <vector>
+#include <map>
 #include "Components/CObject.h"
 #include "Components/CWindow.h"
 class wai{
@@ -17,15 +17,58 @@ class wai{
         bool isRegistered = false;
         template<class Obj>
         Obj* create(LPCTSTR, DWORD, int, int, int, int);
+
+        LRESULT CALLBACK appProc(HWND, UINT, WPARAM, LPARAM);
         
     private:
         HINSTANCE   _hInstance;
         LPCTSTR     _lpClassName;
         WNDCLASS    _wcStruct = {0};
         
-        std::vector<CObject*> _objectRegistry; // Список указатель на все обьекты для обработчика событий(сообщений)
+        std::map<HWND, CObject*> _objectRegistry; // Конвеер - Список указатель на все обьекты для обработчика событий(сообщений)
+        void        _pushToRegistry(CObject*);
         //TODO std::unique_ptr добавить для обьектов в конвеере
+        //возможны ошибки из-за реаллоцирования памяти(один обьект указывает на другой см. https://habr.com/ru/post/664044/)
+        //Найти нужный HWND в НЕСКОЛЬКИХ списках обьектов, далее получить нужный обьект, и передать ему управление над сообщениями:
+        //PROBLEM - пока не разобрался как при таких действиях сохранить структуру дочернего после преобразования из родительского...см. Проблема пребразования.cpp
 };
+/**
+ * @brief Добавляет созданный обьект в конвеер обработчика событий
+ * 
+ * @param obj добавляемый обьект
+ */
+void wai::_pushToRegistry(CObject* obj){
+    this->_objectRegistry.insert(std::pair<HWND, CObject*>(obj->getHWND(), obj));
+}
+
+/**
+ * @brief Обработчик событий для приложения. Вызывается перед пользовательской обработкой, на пользователе остается вызвать defWindowProc
+ * 
+ * @param hWnd дескриптор
+ * @param msg сообщение
+ * @param wParam 
+ * @param lParam 
+ * @return LRESULT 
+ */
+LRESULT CALLBACK wai::appProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
+    auto find_object = this->_objectRegistry.find(hWnd);
+    if(find_object == this->_objectRegistry.end()) //Если обьекта с данным HWND нет в конвеере то обрабатывать нечего
+        return 0;
+    switch(msg){
+        case WM_DESTROY: 
+            //в map хранятся ссылки на CObject родительский класс
+            //Возможно использование dynamic_cast? см. https://habr.com/ru/post/347786/
+            CWindow* A = static_cast<CWindow*>(find_object->second);
+            A->onClose();
+            //PROBLEM в дальнейшем с различными событиями необходимо знать к какому типу то приводить
+            //EXAMPLE: WM_MOVE работать должно как на CButton, CEdit так и на CWindow
+            //TODO возможен ли обработчик событий внутри каждого обьекта???
+        break;
+    }
+    return 0;
+}
+
+
 /**
  * @brief Создает родительский элемент 
  * 
@@ -36,25 +79,24 @@ class wai{
  * @param y позиция Y
  * @param width ширина
  * @param height высота
- * @return Obj* указатель на только что созданный обьект пользователю
+ * @return Obj* указатель на только что созданный обьект пользователю или NULL при неудаче
  */
 template<class Obj>
 Obj* wai::create(LPCTSTR lpDefinedText, DWORD dwStyle, int x, int y, int width, int height){
-    return new Obj(lpDefinedText, this->_lpClassName, dwStyle, x, y, width, height, this->_hInstance);
+    Obj* o = new Obj(lpDefinedText, this->_lpClassName, dwStyle, x, y, width, height, this->_hInstance);
+    if(!o->getHWND()) 
+        return NULL;
+
+    this->_pushToRegistry(o);
+    return o;
+    //TODO возможна утечка памяти т.к. указатель не удаляется ????????????
 }
-
-
-
-
-
-
 /**
  * @brief Конструктор обьекта-приложения Windows API Interface
  * 
  * @param hInst дескриптор 
  * @param lpClassName имя класса
  * @param fnUserFnc функция для обработки сообщений
- * //TODO функция обработки сообщений должна быть статична, возможно ли обойти это?
  */
 wai::wai(HINSTANCE hInst, LPCTSTR lpClassName, WNDPROC fnUserFnc) : _hInstance(hInst), _lpClassName(lpClassName){
     this->_wcStruct.lpszClassName = this->_lpClassName;
