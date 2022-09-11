@@ -7,7 +7,7 @@ class C{
     public:
         void test(){
             cout << i;
-        }
+        }   
         C(int _i):i(_i){}
 };
 class B : public C{

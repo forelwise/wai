@@ -1,6 +1,9 @@
 # Prerequisites
 *.d
 
+vscode/
+test/
+
 # Compiled Object files
 *.slo
 *.lo
@@ -31,5 +34,4 @@
 *.out
 *.app
 
-.vscode/
-.test/
+
