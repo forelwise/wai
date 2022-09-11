@@ -4,7 +4,7 @@
             "type": "cppbuild",
             "label": "C/C++: g++.exe сборка активного файла",
             "command": "C:\\Program Files\\CodeBlocks\\MinGW\\bin\\g++.exe",
-            "args": [
+            "args":[
                 "-fdiagnostics-color=always",
                 "-g",
                 "${file}",
