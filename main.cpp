@@ -6,13 +6,16 @@
 #endif
 #include <iostream>
 #include <windows.h>
+#include "wai/wai.h"
 
 ATOM RegMyWindowClass(HINSTANCE, LPCTSTR);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdLine){
     LPCTSTR lpClassName = L"MyAp2p";
-    if(!RegMyWindowClass(hInstance, lpClassName))
+    
+    wai test(hInstance, lpClassName, WndProc);
+    if(!test.isRegistered)
         return 3;
 
     HWND hWnd = CreateWindow(lpClassName, L"TEST", WS_OVERLAPPEDWINDOW | WS_VISIBLE,
@@ -26,21 +29,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
+
+    /*
+
+        CWindow window1 = app.newWindow(params);
+        window1.show();
+
+        CButton c = window1.new<CButton>(paraams);
+        c.text(...);
+        c.position...
+        
+
+    */
     return msg.wParam;       
 }
-ATOM RegMyWindowClass(HINSTANCE hInst, LPCTSTR lpzClassName){
-    WNDCLASS wcWindowClass = {0};
-    wcWindowClass.lpszClassName = lpzClassName;
-    wcWindowClass.lpfnWndProc = (WNDPROC)WndProc;
-    wcWindowClass.style = CS_HREDRAW | CS_VREDRAW;
-    wcWindowClass.hInstance = hInst;
-    wcWindowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wcWindowClass.hbrBackground = (HBRUSH)COLOR_APPWORKSPACE;
 
-    return RegisterClass(&wcWindowClass);
-}
-
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){            
     switch (message)
     {
     case WM_LBUTTONUP:
