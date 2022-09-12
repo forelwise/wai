@@ -5,13 +5,11 @@
 class CWindow : public CObject{
     public:
         CWindow(LPCTSTR, LPCTSTR, DWORD, int, int, int, int, HINSTANCE, HWND);
-        void objectProc(UINT, WPARAM, LPARAM);
+        void customProc(UINT, WPARAM, LPARAM);
         //TODO перенести базовые собития и обработчик в CObject как виртуальный? 
 };
-void CWindow::objectProc(UINT msg, WPARAM wParam, LPARAM lParam){
-    switch(msg){
-        
-    }
+void CWindow::customProc(UINT msg, WPARAM wParam, LPARAM lParam){
+    this->defaultProc(msg, wParam, lParam);
 }
 
 /**

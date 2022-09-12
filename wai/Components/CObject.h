@@ -65,7 +65,6 @@ void CObject::defaultProc(UINT msg, WPARAM wParam, LPARAM lParam){
                 this->onDestroy();
         break;
     }
-    this->customProc(msg, wParam, lParam);
 }
 /**
  * @brief Конструктор обьекта CObject
