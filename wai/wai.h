@@ -27,10 +27,10 @@ class wai{
         
         std::map<HWND, CObject*> _objectRegistry; // Конвеер - Список указатель на все обьекты для обработчика событий(сообщений)
         void        _pushToRegistry(CObject*);
-        //TODO std::unique_ptr добавить для обьектов в конвеере
+        //TODO использовать уникальные указатели в будущем
         //возможны ошибки из-за реаллоцирования памяти(один обьект указывает на другой см. https://habr.com/ru/post/664044/)
         //Найти нужный HWND в НЕСКОЛЬКИХ списках обьектов, далее получить нужный обьект, и передать ему управление над сообщениями:
-        //PROBLEM - пока не разобрался как при таких действиях сохранить структуру дочернего после преобразования из родительского...см. Проблема пребразования.cpp
+        //convertation.cpp - решеение PROBLEM
 };
 /**
  * @brief Добавляет созданный обьект в конвеер обработчика событий
@@ -54,17 +54,7 @@ LRESULT CALLBACK wai::appProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     auto find_object = this->_objectRegistry.find(hWnd);
     if(find_object == this->_objectRegistry.end()) //Если обьекта с данным HWND нет в конвеере то обрабатывать нечего
         return 0;
-    switch(msg){
-        case WM_DESTROY: 
-            //в map хранятся ссылки на CObject родительский класс
-            //Возможно использование dynamic_cast? см. https://habr.com/ru/post/347786/
-            CWindow* A = static_cast<CWindow*>(find_object->second);
-            A->onClose();
-            //PROBLEM в дальнейшем с различными событиями необходимо знать к какому типу то приводить
-            //EXAMPLE: WM_MOVE работать должно как на CButton, CEdit так и на CWindow
-            //TODO возможен ли обработчик событий внутри каждого обьекта???
-        break;
-    }
+    find_object->second->objectProc(msg, wParam, lParam);
     return 0;
 }
 
@@ -84,9 +74,10 @@ LRESULT CALLBACK wai::appProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 template<class Obj>
 Obj* wai::create(LPCTSTR lpDefinedText, DWORD dwStyle, int x, int y, int width, int height){
     Obj* o = new Obj(lpDefinedText, this->_lpClassName, dwStyle, x, y, width, height, this->_hInstance);
-    if(!o->getHWND()) 
+    if(!o->getHWND()) {
+        MessageBox(NULL, L"Error creating window", L"Error", MB_OK);
         return NULL;
-
+    }
     this->_pushToRegistry(o);
     return o;
     //TODO возможна утечка памяти т.к. указатель не удаляется ????????????

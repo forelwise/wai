@@ -8,6 +8,7 @@ class CObject{
         const HWND getHWND(){
             return this->_hWnd;
         }
+        virtual void objectProc(UINT, WPARAM, LPARAM) = 0;
     protected:
         DWORD       _dwStyle;
         LPCTSTR     _lpClassName;
