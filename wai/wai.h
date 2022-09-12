@@ -54,7 +54,7 @@ LRESULT CALLBACK wai::appProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     auto find_object = this->_objectRegistry.find(hWnd);
     if(find_object == this->_objectRegistry.end()) //Если обьекта с данным HWND нет в конвеере то обрабатывать нечего
         return 0;
-    find_object->second->objectProc(msg, wParam, lParam);
+    find_object->second->defaultProc(msg, wParam, lParam);
     return 0;
 }
 

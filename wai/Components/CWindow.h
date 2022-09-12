@@ -7,23 +7,10 @@ class CWindow : public CObject{
         CWindow(LPCTSTR, LPCTSTR, DWORD, int, int, int, int, HINSTANCE, HWND);
         void objectProc(UINT, WPARAM, LPARAM);
         //TODO перенести базовые собития и обработчик в CObject как виртуальный? 
-        void(*onClose)(void) = nullptr;
-        void(*onMouseDown)() = nullptr; 
-        void(*onMouseUp)()   = nullptr;
 };
 void CWindow::objectProc(UINT msg, WPARAM wParam, LPARAM lParam){
     switch(msg){
-        case WM_DESTROY:
-            if(this->onClose != nullptr)
-                this->onClose();
-        break;
-        case WM_LBUTTONUP:
-            int x = LOWORD(lParam);
-            int y = HIWORD(lParam);
-            std::cout << "X: " << x << std::endl << "Y: " << y << std::endl; 
-            if(this->onMouseUp != nullptr)
-                this->onMouseUp();
-        break;
+        
     }
 }
 
