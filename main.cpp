@@ -13,7 +13,10 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 wai* app;
 void test(const POINT& pos, int options, WPARAM wParam){
-    MessageBox(NULL, L"TEST", L"TEST", MB_ABORTRETRYIGNORE);
+    std::cout << pos.x << std::endl << pos.y << std::endl; 
+    if(options == WE_LBM) std::cout << "LBM";
+    else   std::cout << "RBM";
+    std::cout << std::endl;
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdLine){

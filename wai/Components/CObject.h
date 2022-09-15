@@ -10,11 +10,17 @@ class CObject{
             return this->_hWnd;
         }
         virtual LRESULT customProc(UINT, WPARAM, LPARAM) = 0;
-        void defaultProc(UINT, WPARAM, LPARAM); //Функция для обработки базовых сообщений
+        LRESULT defaultProc(UINT, WPARAM, LPARAM); //Функция для обработки базовых сообщений
         //TODO необходимо разорабться все ли события подходят для всех обьектов, если да то в func defaultProc необходимости нет
         //если есть кастомные, их необходимо выносить в отдельный класс обьекта
 
         //Default Events:
+        //Нажатие/отпускание мышки
+        //POINT - координаты, int - WE_LBM/RBM/MBM, WPARAM - доп.параметры 
+        void (*onMouseDown)(const POINT&, int, WPARAM) = nullptr; 
+        void (*onMouseUp)(const POINT&, int, WPARAM) = nullptr;
+        //Разрушение обьекта
+        void (*onDestroy)() = nullptr; 
            
     protected:
         DWORD       _dwStyle;
@@ -29,14 +35,14 @@ class CObject{
  * @param wParam параметр 1
  * @param lParam параметр 2
  */
-void CObject::defaultProc(UINT msg, WPARAM wParam, LPARAM lParam){
-    /*switch(msg){
+LRESULT CObject::defaultProc(UINT msg, WPARAM wParam, LPARAM lParam){
+    switch(msg){
         case WM_LBUTTONDOWN:
             if(this->onMouseDown != nullptr) 
                 this->onMouseDown(POINT({HIWORD(lParam), LOWORD(lParam)}), WE_LBM, wParam);
         break;
         case WM_LBUTTONUP:
-            if(this->onMouseDown != nullptr) 
+            if(this->onMouseUp != nullptr) 
                 this->onMouseUp(POINT({HIWORD(lParam), LOWORD(lParam)}), WE_LBM, wParam);
         break;
         case WM_RBUTTONDOWN:
@@ -44,7 +50,7 @@ void CObject::defaultProc(UINT msg, WPARAM wParam, LPARAM lParam){
                 this->onMouseDown(POINT({HIWORD(lParam), LOWORD(lParam)}), WE_RBM, wParam);
         break;
         case WM_RBUTTONUP:
-            if(this->onMouseDown != nullptr) 
+            if(this->onMouseUp != nullptr) 
                 this->onMouseUp(POINT({HIWORD(lParam), LOWORD(lParam)}), WE_RBM, wParam);
         break;
         case WM_MBUTTONDOWN:
@@ -52,7 +58,7 @@ void CObject::defaultProc(UINT msg, WPARAM wParam, LPARAM lParam){
                 this->onMouseDown(POINT({HIWORD(lParam), LOWORD(lParam)}), WE_MBM, wParam);
         break;
         case WM_MBUTTONUP:
-            if(this->onMouseDown != nullptr) 
+            if(this->onMouseUp != nullptr) 
                 this->onMouseUp(POINT({HIWORD(lParam), LOWORD(lParam)}), WE_MBM, wParam);
         break;
         case WM_DESTROY:
@@ -60,10 +66,10 @@ void CObject::defaultProc(UINT msg, WPARAM wParam, LPARAM lParam){
                 this->onDestroy();
         break;
         default:    
-            DefWindowProc(this->getHWND(), msg, wParam, lParam);
+            return this->customProc(msg, wParam, lParam);
         break;
-    }*/
-    //  this->customProc(msg, wParam, lParam);
+    }
+    return 0;
 }
 /**
  * @brief Конструктор обьекта CObject
