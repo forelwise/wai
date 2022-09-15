@@ -11,22 +11,23 @@
 #include <map>
 #include "Components/CObject.h"
 #include "Components/CWindow.h"
+#include "Components/CButton.h"
 class wai{
     public:
         wai(HINSTANCE, LPCTSTR, WNDPROC);
         bool isRegistered = false;
         template<class Obj>
-        Obj* create(LPCTSTR, DWORD, int, int, int, int);
+        Obj* create(LPCTSTR, DWORD, const POINT&, const SIZE&);
 
         LRESULT appProc(HWND, UINT, WPARAM, LPARAM);
-        
+        void        _pushToRegistry(CObject*);
     private:
         HINSTANCE   _hInstance;
         LPCTSTR     _lpClassName;
         WNDCLASS    _wcStruct = {0};
         
         std::map<HWND, CObject*> _objectRegistry; // Конвеер - Список указатель на все обьекты для обработчика событий(сообщений)
-        void        _pushToRegistry(CObject*);
+        
         //TODO использовать уникальные указатели в будущем
         //возможны ошибки из-за реаллоцирования памяти(один обьект указывает на другой см. https://habr.com/ru/post/664044/)
         //Найти нужный HWND в НЕСКОЛЬКИХ списках обьектов, далее получить нужный обьект, и передать ему управление над сообщениями:
@@ -72,8 +73,8 @@ LRESULT wai::appProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
  * @return Obj* указатель на только что созданный обьект пользователю или NULL при неудаче
  */
 template<class Obj>
-Obj* wai::create(LPCTSTR lpDefinedText, DWORD dwStyle, int x, int y, int width, int height){
-    Obj* o = new Obj(lpDefinedText, this->_lpClassName, dwStyle, x, y, width, height, this->_hInstance);
+Obj* wai::create(LPCTSTR lpDefinedText, DWORD dwStyle, const POINT& pos, const SIZE& size){
+    Obj* o = new Obj(lpDefinedText, this->_lpClassName, dwStyle, pos, size, this->_hInstance);
     if(!o->getHWND()) {
         MessageBox(NULL, L"Error creating window", L"Error", MB_OK | MB_ICONERROR);
         return NULL;

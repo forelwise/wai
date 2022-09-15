@@ -4,12 +4,24 @@
 #define _WAPI_CWindow
 class CWindow : public CObject{
     public:
-        CWindow(LPCTSTR, LPCTSTR, DWORD, int, int, int, int, HINSTANCE, HWND);
+        CWindow(LPCTSTR, LPCTSTR, DWORD, const POINT&, const SIZE&, HINSTANCE, HWND);
         LRESULT customProc(UINT, WPARAM, LPARAM);
-         
+        template<class Obj>
+        Obj* create(LPCTSTR, const POINT&, const SIZE&);
 
         
 };
+template<class Obj>
+Obj* CWindow::create(LPCTSTR lpText, const POINT& pos, const SIZE& size){
+    Obj* o = new Obj(lpText, this, pos, size);
+    if(!o->getHWND()){
+        MessageBox(NULL, L"Error creating element for CWindow", L"Error", MB_OK | MB_ICONERROR);
+        return nullptr;
+    }else{
+        //TODO необходимо зарегистрировать обьект в обработке событий!
+        return o;
+    }
+}
 LRESULT CWindow::customProc(UINT msg, WPARAM wParam, LPARAM lParam){
     switch(msg){
         default:    
@@ -31,7 +43,7 @@ LRESULT CWindow::customProc(UINT msg, WPARAM wParam, LPARAM lParam){
  * @param hInst дескриптор приложения
  * @param hWndParent дескриптор родительского окна 
  */
-CWindow::CWindow(LPCTSTR lpDefinedText, LPCTSTR lpClassName, DWORD dwStyle, int x, int y, int width, int height, HINSTANCE hInst, HWND hWndParent = NULL) : CObject(lpClassName, dwStyle, hInst){
-    this->_hWnd = CreateWindow(lpClassName, lpDefinedText, dwStyle, x, y, width, height, hWndParent, NULL, hInst, NULL);
+CWindow::CWindow(LPCTSTR lpDefinedText, LPCTSTR lpClassName, DWORD dwStyle, const POINT& pos, const SIZE& size, HINSTANCE hInst, HWND hWndParent = NULL) : CObject(lpClassName, dwStyle, hInst){
+    this->_hWnd = CreateWindow(lpClassName, lpDefinedText, dwStyle, pos.x, pos.y, size.cx, size.cy, hWndParent, NULL, hInst, NULL);
 }
 #endif

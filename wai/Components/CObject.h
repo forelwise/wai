@@ -7,8 +7,8 @@ class CObject{
         CObject(LPCTSTR, DWORD, HINSTANCE);
 
         const HWND getHWND(){
-            return this->_hWnd;
-        }
+            return this->_hWnd; //TODO нормально сделать )
+        } 
         virtual LRESULT customProc(UINT, WPARAM, LPARAM) = 0;
         LRESULT defaultProc(UINT, WPARAM, LPARAM); //Функция для обработки базовых сообщений
         //TODO необходимо разорабться все ли события подходят для всех обьектов, если да то в func defaultProc необходимости нет
