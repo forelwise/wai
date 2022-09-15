@@ -5,11 +5,50 @@
 class CWindow : public CObject{
     public:
         CWindow(LPCTSTR, LPCTSTR, DWORD, int, int, int, int, HINSTANCE, HWND);
-        void customProc(UINT, WPARAM, LPARAM);
+        LRESULT customProc(UINT, WPARAM, LPARAM);
         //TODO перенести базовые собития и обработчик в CObject как виртуальный? 
+
+        //Нажатие/отпускание мышки
+        //POINT - координаты, int - WE_LBM/RBM/MBM, WPARAM - доп.параметры 
+        void (*onMouseDown)(const POINT&, int, WPARAM) = nullptr; 
+        void (*onMouseUp)(const POINT&, int, WPARAM) = nullptr;
+        //Разрушение обьекта
+        void (*onDestroy)() = nullptr; 
 };
-void CWindow::customProc(UINT msg, WPARAM wParam, LPARAM lParam){
-    this->defaultProc(msg, wParam, lParam);
+LRESULT CWindow::customProc(UINT msg, WPARAM wParam, LPARAM lParam){
+    switch(msg){
+        case WM_LBUTTONDOWN:
+            if(onMouseDown != nullptr) 
+                onMouseDown(POINT({HIWORD(lParam), LOWORD(lParam)}), WE_LBM, wParam);
+        break;
+        case WM_LBUTTONUP:
+            if(onMouseUp != nullptr) 
+                onMouseUp(POINT({HIWORD(lParam), LOWORD(lParam)}), WE_LBM, wParam);
+        break;
+        case WM_RBUTTONDOWN:
+            if(this->onMouseDown != nullptr) 
+                this->onMouseDown(POINT({HIWORD(lParam), LOWORD(lParam)}), WE_RBM, wParam);
+        break;
+        case WM_RBUTTONUP:
+            if(this->onMouseUp != nullptr) 
+                this->onMouseUp(POINT({HIWORD(lParam), LOWORD(lParam)}), WE_RBM, wParam);
+        break;
+        case WM_MBUTTONDOWN:
+            if(this->onMouseDown != nullptr) 
+                this->onMouseDown(POINT({HIWORD(lParam), LOWORD(lParam)}), WE_MBM, wParam);
+        break;
+        case WM_MBUTTONUP:
+            if(this->onMouseUp != nullptr) 
+                this->onMouseUp(POINT({HIWORD(lParam), LOWORD(lParam)}), WE_MBM, wParam);
+        break;
+        case WM_DESTROY:
+            if(this->onDestroy != nullptr)
+                this->onDestroy();
+        break;
+        default:    
+            return DefWindowProc(this->getHWND(), msg, wParam, lParam);
+    }
+    return 0;
 }
 
 /**

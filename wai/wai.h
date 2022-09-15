@@ -18,7 +18,7 @@ class wai{
         template<class Obj>
         Obj* create(LPCTSTR, DWORD, int, int, int, int);
 
-        void appProc(HWND, UINT, WPARAM, LPARAM);
+        LRESULT appProc(HWND, UINT, WPARAM, LPARAM);
         
     private:
         HINSTANCE   _hInstance;
@@ -50,10 +50,12 @@ void wai::_pushToRegistry(CObject* obj){
  * @param lParam 
  * @return LRESULT 
  */
-void wai::appProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
+LRESULT wai::appProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
     auto find_object = this->_objectRegistry.find(hWnd);
     if(find_object != this->_objectRegistry.end()) //Если обьекта с данным HWND нет в конвеере то обрабатывать нечего
-        find_object->second->customProc(msg, wParam, lParam);
+        return find_object->second->customProc(msg, wParam, lParam);
+    else
+        return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
 
@@ -73,7 +75,7 @@ template<class Obj>
 Obj* wai::create(LPCTSTR lpDefinedText, DWORD dwStyle, int x, int y, int width, int height){
     Obj* o = new Obj(lpDefinedText, this->_lpClassName, dwStyle, x, y, width, height, this->_hInstance);
     if(!o->getHWND()) {
-        MessageBox(NULL, L"Error creating window", L"Error", MB_OK);
+        MessageBox(NULL, L"Error creating window", L"Error", MB_OK | MB_ICONERROR);
         return NULL;
     }
     this->_pushToRegistry(o);

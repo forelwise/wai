@@ -13,13 +13,7 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 wai* app;
 void test(const POINT& pos, int options, WPARAM wParam){
-    if((options & WE_LBM) == WE_LBM){
-        MessageBox(NULL, L"test", L"t", MB_OK);
-    }
-    if((options & WE_RBM) == WE_RBM){
-        MessageBox(NULL, L"quit", L"t", MB_OK);
-        PostQuitMessage(0);
-    } 
+    MessageBox(NULL, L"TEST", L"TEST", MB_ABORTRETRYIGNORE);
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdLine){
@@ -42,6 +36,5 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 }
     
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){    
-    app->appProc(hWnd, message, wParam, lParam);        
-    return DefWindowProc(hWnd, message, wParam, lParam);
+    return app->appProc(hWnd, message, wParam, lParam);  
 }

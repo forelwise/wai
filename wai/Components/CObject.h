@@ -9,18 +9,13 @@ class CObject{
         const HWND getHWND(){
             return this->_hWnd;
         }
-        virtual void customProc(UINT, WPARAM, LPARAM) = 0;
+        virtual LRESULT customProc(UINT, WPARAM, LPARAM) = 0;
         void defaultProc(UINT, WPARAM, LPARAM); //Функция для обработки базовых сообщений
         //TODO необходимо разорабться все ли события подходят для всех обьектов, если да то в func defaultProc необходимости нет
         //если есть кастомные, их необходимо выносить в отдельный класс обьекта
 
         //Default Events:
-        //Нажатие/отпускание мышки
-        //POINT - координаты, int - WE_LBM/RBM/MBM, WPARAM - доп.параметры 
-        void (*onMouseDown)(const POINT&, int, WPARAM) = nullptr; 
-        void (*onMouseUp)(const POINT&, int, WPARAM) = nullptr;
-        //Разрушение обьекта
-        void (*onDestroy)() = nullptr;    
+           
     protected:
         DWORD       _dwStyle;
         LPCTSTR     _lpClassName;
@@ -35,7 +30,7 @@ class CObject{
  * @param lParam параметр 2
  */
 void CObject::defaultProc(UINT msg, WPARAM wParam, LPARAM lParam){
-    switch(msg){
+    /*switch(msg){
         case WM_LBUTTONDOWN:
             if(this->onMouseDown != nullptr) 
                 this->onMouseDown(POINT({HIWORD(lParam), LOWORD(lParam)}), WE_LBM, wParam);
@@ -64,7 +59,11 @@ void CObject::defaultProc(UINT msg, WPARAM wParam, LPARAM lParam){
             if(this->onDestroy != nullptr)
                 this->onDestroy();
         break;
-    }
+        default:    
+            DefWindowProc(this->getHWND(), msg, wParam, lParam);
+        break;
+    }*/
+    //  this->customProc(msg, wParam, lParam);
 }
 /**
  * @brief Конструктор обьекта CObject
